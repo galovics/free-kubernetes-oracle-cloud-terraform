@@ -60,7 +60,7 @@ jobs:
       - name: Deploy to K8S
         run: |
           sed -i 's/<DOCKER_OBJECT_STORAGE_NAMESPACE>/${{ secrets.DOCKER_OBJECT_STORAGE_NAMESPACE }}/g' app/k8s-deployment.yaml
-          kubectl -n $K8S_NAMESPACE apply -f app/k8s-deployment.yaml
+          kubectl -n free-ns apply -f app/k8s-deployment.yaml
       - name: Restart the frontend
         run: |
-          kubectl -n $K8S_NAMESPACE rollout restart deployment nginx
+          kubectl -n free-ns rollout restart deployment nginx
