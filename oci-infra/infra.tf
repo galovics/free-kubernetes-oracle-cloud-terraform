@@ -224,7 +224,7 @@ resource "oci_containerengine_node_pool" "k8s_node_pool" {
 
 resource "oci_artifacts_container_repository" "docker_repository" {
   compartment_id = var.compartment_id
-  display_name   = "free-k8s-repository"
+  display_name   = "free-kubernetes-nginx"
 
   is_immutable = false
   is_public    = false
