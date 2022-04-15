@@ -180,26 +180,25 @@ data "oci_identity_availability_domains" "ads" {
   compartment_id = var.compartment_id
 }
 
+locals {
+  # Gather a list of availability domains for use in configuring placement_configs
+  azs = data.oci_identity_availability_domains.ads.availability_domains[*].name
+}
+
 resource "oci_containerengine_node_pool" "k8s_node_pool" {
   cluster_id         = oci_containerengine_cluster.k8s_cluster.id
   compartment_id     = var.compartment_id
   kubernetes_version = "v1.21.5"
   name               = "free-k8s-node-pool"
   node_config_details {
-    placement_configs {
-      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
-      subnet_id           = oci_core_subnet.vcn_private_subnet.id
-    }
-    placement_configs {
-      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[1].name
-      subnet_id           = oci_core_subnet.vcn_private_subnet.id
-    }
-    placement_configs {
-      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[2].name
-      subnet_id           = oci_core_subnet.vcn_private_subnet.id
+    dynamic placement_configs {
+      for_each = local.azs
+      content {
+        availability_domain = placement_configs.value
+        subnet_id           = oci_core_subnet.vcn_private_subnet.id
+      }
     }
     size = 2
-
 
   }
   node_shape = "VM.Standard.A1.Flex"
