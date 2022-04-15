@@ -185,6 +185,17 @@ locals {
   azs = data.oci_identity_availability_domains.ads.availability_domains[*].name
 }
 
+data "oci_core_images" "latest_image" {
+  compartment_id = var.compartment_id
+  operating_system = "Oracle Linux"
+  operating_system_version = "7.9"
+  filter {
+    name   = "display_name"
+    values = ["^.*aarch64-.*$"]
+    regex = true
+  }
+}
+
 resource "oci_containerengine_node_pool" "k8s_node_pool" {
   cluster_id         = oci_containerengine_cluster.k8s_cluster.id
   compartment_id     = var.compartment_id
@@ -209,7 +220,7 @@ resource "oci_containerengine_node_pool" "k8s_node_pool" {
   }
 
   node_source_details {
-    image_id    = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaabh7a24rl4qxunwziscawa4k65ar7ktdbbt4yf74hvcp7zipharhq"
+    image_id    = data.oci_core_images.latest_image.images.0.id
     source_type = "image"
   }
 
